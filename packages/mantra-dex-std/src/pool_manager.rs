@@ -171,7 +171,7 @@ pub enum ExecuteMsg {
         /// The belief price of the swap.
         belief_price: Option<Decimal>,
         /// The maximum spread to incur when performing the swap. If the spread exceeds this value,
-        /// the swap will not be executed.
+        /// the swap will not be executed. Max 50%.
         max_spread: Option<Decimal>,
         /// The recipient of the output tokens. If not provided, the tokens will be sent to the sender
         /// of the message.
@@ -195,9 +195,8 @@ pub enum ExecuteMsg {
         ///
         /// If left unspecified, tokens will be sent to the sender of the message.
         receiver: Option<String>,
-        /// The (optional) maximum spread to incur when performing any swap.
-        ///
-        /// If left unspecified, there is no limit to what spread the transaction can incur.
+        /// The maximum spread to incur when performing the swap. If the spread exceeds this value,
+        /// the swap will not be executed. Max 50%.
         max_spread: Option<Decimal>,
     },
     /// Updates the configuration of the contract.
