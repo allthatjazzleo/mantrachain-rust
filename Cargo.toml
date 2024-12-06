@@ -13,7 +13,7 @@ authors = [
 ]
 
 [workspace.dependencies]
-mantra-dex-std = { version = "1.0.0" }
+mantra-dex-std = { version = "1.0.1" }
 
 cosmwasm-std = { version = "2.1.3", default-features = true, features = [
     "cosmwasm_2_1",
