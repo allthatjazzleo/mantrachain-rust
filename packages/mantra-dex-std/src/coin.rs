@@ -9,7 +9,7 @@ pub const FACTORY_MAX_SUBDENOM_SIZE: usize = 44usize;
 /// A factory token has the following structure: factory/{creating contract address}/{subdenom}
 /// Subdenom can be of length at most 44 characters, in [0-9a-zA-Z./].
 /// For more details about what's expected from a factory token, please refer to
-/// https://docs.osmosis.zone/osmosis-core/modules/tokenfactory
+/// <https://docs.osmosis.zone/osmosis-core/modules/tokenfactory>
 pub fn is_factory_token(denom: &str) -> bool {
     let split: Vec<&str> = denom.splitn(3, '/').collect();
 
