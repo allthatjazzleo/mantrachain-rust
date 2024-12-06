@@ -5,7 +5,6 @@ edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 repository.workspace = true
-publish.workspace = true
 authors.workspace = true
 keywords = ["mantrachain", "mantra", "dex", "amm", "cosmwasm"]
 description = "Types used by the MANTRA-dex contracts suite"

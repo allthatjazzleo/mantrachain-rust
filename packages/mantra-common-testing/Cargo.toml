@@ -5,7 +5,6 @@ edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 repository.workspace = true
-publish.workspace = true
 authors.workspace = true
 keywords = ["mantrachain", "mantra", "testing", "cosmwasm"]
 description = "Common types for testing CosmWasm smart contracts on MANTRA Chain"
