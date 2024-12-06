@@ -1,0 +1,20 @@
+[package]
+name = "mantra-common-testing"
+version = "1.0.0"
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+authors.workspace = true
+description = "Common types for testing CosmWasm smart contracts on MANTRA Chain"
+
+[dependencies]
+anyhow.workspace = true
+cosmwasm-std.workspace = true
+schemars.workspace = true
+serde.workspace = true
+cosmwasm-schema.workspace = true
+cw-multi-test.workspace = true
+mantra-dex-std.workspace = true
+osmosis-std.workspace = true

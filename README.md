@@ -1,0 +1,10 @@
+# mantrachain-rust
+
+Rust libraries for MANTRA Chain. The following table shows every published crates maintained in this repository:
+
+| Crate                                                   | Description                                                                                 | Crates.io                                                                                                                                          | Docs                                                                                              |
+|---------------------------------------------------------|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| [mantra-dex](packages/mantra-dex-std)                   | Types used by the [MANTRA-dex](https://github.com/MANTRA-Chain/mantra-dex) contracts suite. | [![mantra-dex on crates.io](https://img.shields.io/crates/v/mantra-dex.svg)](https://crates.io/crates/mantra-dex)                                  | [![Docs](https://docs.rs/mantra-dex/badge.svg)](https://docs.rs/mantra-dex)                       |
+| [mantra-utils](packages/mantra-utils)                   | Utils used by CosmWasm smart contracts on MANTRA Chain.                                     | [![mantra-utils on crates.io](https://img.shields.io/crates/v/mantra-utils.svg)](https://crates.io/crates/mantra-utils)                            | [![Docs](https://docs.rs/mantra-utils/badge.svg)](https://docs.rs/mantra-utils)                   |
+| [mantra-common-testing](packages/mantra-common-testing) | Common types for testing CosmWasm smart contracts on MANTRA Chain.                          | [![mantra-common-testing on crates.io](https://img.shields.io/crates/v/mantra-common-testing.svg)](https://crates.io/crates/mantra-common-testing) | [![Docs](https://docs.rs/mantra-common-testing/badge.svg)](https://docs.rs/mantra-common-testing) |
+

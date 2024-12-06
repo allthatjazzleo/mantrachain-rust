@@ -1,0 +1,22 @@
+[package]
+name = "mantra-dex-std"
+version = "1.0.0"
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+authors.workspace = true
+description = "Types used by the MANTRA-dex contracts suite"
+
+[dependencies]
+cosmwasm-std.workspace = true
+cosmwasm-schema.workspace = true
+cw-ownable.workspace = true
+cw-storage-plus.workspace = true
+uint.workspace = true
+anybuf.workspace = true
+osmosis-std.workspace = true
+
+[dev-dependencies]
+test-case.workspace = true
