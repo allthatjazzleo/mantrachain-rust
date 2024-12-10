@@ -362,15 +362,35 @@ pub struct FeatureToggle {
 /// The response for the `SimulateSwapOperations` query.
 #[cw_serde]
 pub struct SimulateSwapOperationsResponse {
-    /// The amount of the final token after the swap operations.
-    pub amount: Uint128,
+    /// The return amount of the ask asset after the swap operations.
+    pub return_amount: Uint128,
+    /// The spreads of the swap.
+    pub spreads: Vec<Coin>,
+    /// The swap fees of the swap.
+    pub swap_fees: Vec<Coin>,
+    /// The protocol fees of the swap.
+    pub protocol_fees: Vec<Coin>,
+    /// The burn fees of the swap.
+    pub burn_fees: Vec<Coin>,
+    /// The extra fees of the swap.
+    pub extra_fees: Vec<Coin>,
 }
 
 /// The response for the `ReverseSimulateSwapOperations` query.
 #[cw_serde]
 pub struct ReverseSimulateSwapOperationsResponse {
     /// The amount of the initial token needed to get the final token after the swap operations.
-    pub amount: Uint128,
+    pub offer_amount: Uint128,
+    /// The spreads of the swap.
+    pub spreads: Vec<Coin>,
+    /// The swap fees of the swap.
+    pub swap_fees: Vec<Coin>,
+    /// The protocol fees of the swap.
+    pub protocol_fees: Vec<Coin>,
+    /// The burn fees of the swap.
+    pub burn_fees: Vec<Coin>,
+    /// The extra fees of the swap.
+    pub extra_fees: Vec<Coin>,
 }
 
 /// Gets the total supply of the given liquidity asset
