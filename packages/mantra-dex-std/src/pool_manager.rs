@@ -344,6 +344,8 @@ pub struct ReverseSimulationResponse {
     pub protocol_fee_amount: Uint128,
     /// The burn fee amount of the swap.
     pub burn_fee_amount: Uint128,
+    /// The extra fees amount of the swap.
+    pub extra_fees_amount: Uint128,
 }
 
 /// Pool feature toggle, can control whether swaps, deposits, and withdrawals are enabled.
