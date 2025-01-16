@@ -730,31 +730,16 @@ checksum = "d8adc4bb1803a324070e64a98ae98f38934d91957a99cfb3a43dcbc01bc56439"
 
 [[package]]
 name = "mantra-common-testing"
-version = "1.1.0"
+version = "1.1.1"
 dependencies = [
  "anyhow",
  "cosmwasm-schema",
  "cosmwasm-std",
  "cw-multi-test",
- "mantra-dex-std 2.0.0",
- "osmosis-std 0.27.0",
+ "mantra-dex-std 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "osmosis-std",
  "schemars",
  "serde",
-]
-
-[[package]]
-name = "mantra-dex-std"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e70896d859866baa645139c04d35764e11c21645315f99c36d9b06252964b741"
-dependencies = [
- "anybuf",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cw-ownable",
- "cw-storage-plus",
- "osmosis-std 0.26.0",
- "uint",
 ]
 
 [[package]]
@@ -766,8 +751,23 @@ dependencies = [
  "cosmwasm-std",
  "cw-ownable",
  "cw-storage-plus",
- "osmosis-std 0.27.0",
+ "osmosis-std",
  "test-case",
+ "uint",
+]
+
+[[package]]
+name = "mantra-dex-std"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2a77132434fe9624749ea443f7243f711b43ddbc154060a9eebf0167c873e53f"
+dependencies = [
+ "anybuf",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cw-ownable",
+ "cw-storage-plus",
+ "osmosis-std",
  "uint",
 ]
 
@@ -818,22 +818,6 @@ name = "once_cell"
 version = "1.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
-
-[[package]]
-name = "osmosis-std"
-version = "0.26.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd621cc2f26474c6fb689ccc114dc0d8b53369a322f1fa5f24802f3de3d3def3"
-dependencies = [
- "chrono",
- "cosmwasm-std",
- "osmosis-std-derive",
- "prost 0.13.3",
- "prost-types 0.13.3",
- "schemars",
- "serde",
- "serde-cw-value",
-]
 
 [[package]]
 name = "osmosis-std"

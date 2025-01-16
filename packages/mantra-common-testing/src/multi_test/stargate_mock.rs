@@ -15,16 +15,13 @@ use mantra_dex_std::tokenfactory::create_denom::{MsgCreateDenom, MsgCreateDenomR
 use mantra_dex_std::tokenfactory::mint::MsgMint;
 
 pub struct StargateMock {
-    pub denom_creation_fee_denom: String,
-    pub denom_creation_fee_amount: String,
+    pub fees: Vec<cosmwasm_std::Coin>,
+    pub pay_in_denom: String,
 }
 
 impl StargateMock {
-    pub fn new(denom_creation_fee_denom: String, denom_creation_fee_amount: String) -> Self {
-        Self {
-            denom_creation_fee_denom,
-            denom_creation_fee_amount,
-        }
+    pub fn new(fees: Vec<cosmwasm_std::Coin>, pay_in_denom: String) -> Self {
+        Self { fees, pay_in_denom }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -62,13 +59,22 @@ impl StargateMock {
                     }],
                 };
 
+                // since the token factory supports two different coins for paying for the denom creation,
+                // we need to find the correct coin to burn
+                // this is just a convenience for the test, in real life, the chain should handle this
+                let tf_fee = self
+                    .fees
+                    .iter()
+                    .find(|fee| fee.denom == self.pay_in_denom)
+                    .unwrap();
+
                 // burn the denom creation fee
                 let burn_msg = BankMsg::Burn {
                     amount: coins(
-                        Uint128::from_str(&self.denom_creation_fee_amount)
+                        Uint128::from_str(&tf_fee.amount.to_string())
                             .unwrap()
                             .u128(),
-                        self.denom_creation_fee_denom.to_string(),
+                        tf_fee.denom.to_string(),
                     ),
                 };
 
@@ -153,14 +159,20 @@ impl Stargate for StargateMock {
         path: String,
         _data: Binary,
     ) -> AnyResult<Binary> {
+        // map the coin types
+        let mut fees: Vec<Coin> = vec![];
+        for fee in self.fees.iter() {
+            fees.push(Coin {
+                denom: fee.denom.clone(),
+                amount: fee.amount.u128().to_string(),
+            });
+        }
+
         match path.as_str() {
             "/osmosis.tokenfactory.v1beta1.Query/Params" => {
                 Ok(to_json_binary(&QueryParamsResponse {
                     params: Some(Params {
-                        denom_creation_fee: vec![Coin {
-                            denom: self.denom_creation_fee_denom.clone(),
-                            amount: self.denom_creation_fee_amount.clone(),
-                        }],
+                        denom_creation_fee: fees,
                         denom_creation_gas_consume: 0,
                     }),
                 })?)
