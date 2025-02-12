@@ -2,12 +2,11 @@ use anyhow::Result as AnyResult;
 use cosmwasm_schema::serde::de::DeserializeOwned;
 use cosmwasm_std::{
     coins, to_json_binary, Addr, AnyMsg, Api, BankMsg, Binary, BlockInfo, CustomMsg, CustomQuery,
-    MsgResponse, Querier, Storage, SubMsgResponse, Uint128,
+    MsgResponse, Querier, Storage, SubMsgResponse,
 };
 use cw_multi_test::{AppResponse, BankSudo, CosmosRouter, Stargate};
 use osmosis_std::types::cosmos::base::v1beta1::Coin;
 use osmosis_std::types::osmosis::tokenfactory::v1beta1::{Params, QueryParamsResponse};
-use std::str::FromStr;
 
 use mantra_dex_std::tokenfactory::burn::MsgBurn;
 use mantra_dex_std::tokenfactory::common::EncodeMessage;
@@ -16,12 +15,11 @@ use mantra_dex_std::tokenfactory::mint::MsgMint;
 
 pub struct StargateMock {
     pub fees: Vec<cosmwasm_std::Coin>,
-    pub pay_in_denom: String,
 }
 
 impl StargateMock {
-    pub fn new(fees: Vec<cosmwasm_std::Coin>, pay_in_denom: String) -> Self {
-        Self { fees, pay_in_denom }
+    pub fn new(fees: Vec<cosmwasm_std::Coin>) -> Self {
+        Self { fees }
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -59,23 +57,9 @@ impl StargateMock {
                     }],
                 };
 
-                // since the token factory supports two different coins for paying for the denom creation,
-                // we need to find the correct coin to burn
-                // this is just a convenience for the test, in real life, the chain should handle this
-                let tf_fee = self
-                    .fees
-                    .iter()
-                    .find(|fee| fee.denom == self.pay_in_denom)
-                    .unwrap();
-
-                // burn the denom creation fee
+                // the token factory consumes all the tokens set as fees
                 let burn_msg = BankMsg::Burn {
-                    amount: coins(
-                        Uint128::from_str(&tf_fee.amount.to_string())
-                            .unwrap()
-                            .u128(),
-                        tf_fee.denom.to_string(),
-                    ),
+                    amount: self.fees.clone(),
                 };
 
                 router.execute(
