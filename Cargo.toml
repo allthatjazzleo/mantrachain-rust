@@ -1,47 +1,40 @@
 [workspace]
-members = ["packages/*"]
+members  = ["packages/*"]
 resolver = "2"
 
 [workspace.package]
+authors = [
+  "MANTRA Engineering Team <tech@mantrachain.io>",
+  "Javier C <javier.m.costa@mantra.finance",
+]
 edition = "2021"
 homepage = "https://mantra.zone"
 license = "MPL-2.0"
 repository = "https://github.com/MANTRA-Chain/mantra-rust"
-authors = [
-    "MANTRA Engineering Team <tech@mantrachain.io>",
-    "Javier C <javier.m.costa@mantra.finance"
-]
 
 [workspace.dependencies]
 mantra-dex-std = { version = "2.1.1" }
 
-cosmwasm-std = { version = "2.2.0", default-features = true, features = [
-    "cosmwasm_2_2",
-    "stargate",
-] }
+anybuf          = { version = "0.5.2" }
+anyhow          = { version = "1.0.95" }
 cosmwasm-schema = { version = "2.2.0" }
+cosmwasm-std    = { version = "2.2.0", default-features = true, features = ["cosmwasm_2_2", "stargate"] }
+cw-multi-test   = { version = "2.2.0", features = ["cosmwasm_2_0", "staking", "stargate"] }
+cw-ownable      = { version = "2.1.0" }
 cw-storage-plus = { version = "2.0.0" }
-cw-ownable = { version = "2.1.0" }
-anyhow = { version = "1.0.95" }
-schemars = { version = "0.8.21" }
-serde = { version = "1.0.217", default-features = false, features = ["derive"] }
-cw-multi-test = { version = "2.2.0", features = [
-    "cosmwasm_2_0",
-    "staking",
-    "stargate",
-] }
-osmosis-std = { version = "0.27.0" }
-uint = { version = "0.10.0" }
-anybuf = { version = "0.5.2" }
-test-case = { version = "3.3.1" }
+osmosis-std     = { version = "0.27.0" }
+schemars        = { version = "0.8.21" }
+serde           = { version = "1.0.217", default-features = false, features = ["derive"] }
+test-case       = { version = "3.3.1" }
+uint            = { version = "0.10.0" }
 
 [profile.release]
-rpath = false
-lto = true
-overflow-checks = true
-opt-level = 3
-debug = false
+codegen-units    = 1
+debug            = false
 debug-assertions = false
-codegen-units = 1
-panic = 'abort'
-incremental = false
+incremental      = false
+lto              = true
+opt-level        = 3
+overflow-checks  = true
+panic            = 'abort'
+rpath            = false
