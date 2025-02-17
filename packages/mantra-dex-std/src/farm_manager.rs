@@ -120,6 +120,9 @@ pub enum QueryMsg {
     Rewards {
         /// The address to get all the farm rewards for.
         address: String,
+        /// The epoch until which the rewards should be queried. If none is provided,
+        /// it will query until the current epoch.
+        until_epoch: Option<EpochId>,
     },
     /// Retrieves the total LP weight in the contract for a given denom on a given epoch.
     #[returns(LpWeightResponse)]

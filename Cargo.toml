@@ -10,10 +10,10 @@ authors = [
 edition = "2021"
 homepage = "https://mantra.zone"
 license = "MPL-2.0"
-repository = "https://github.com/MANTRA-Chain/mantra-rust"
+repository = "https://github.com/MANTRA-Chain/mantrachain-rust"
 
 [workspace.dependencies]
-mantra-dex-std = { version = "2.1.1" }
+mantra-dex-std = { version = "2.1.3" }
 
 anybuf          = { version = "0.5.2" }
 anyhow          = { version = "1.0.95" }
