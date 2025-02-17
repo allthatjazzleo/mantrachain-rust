@@ -46,7 +46,11 @@ pub enum ExecuteMsg {
     /// - Close: Closes an existing position.
     ManagePosition { action: PositionAction },
     /// Claims the rewards for the user
-    Claim {},
+    Claim {
+        /// The epoch until which the rewards should be claimed. If none is provided,
+        /// it will claim until the current epoch.
+        until_epoch: Option<EpochId>,
+    },
     /// Updates the config of the contract
     UpdateConfig {
         /// The fee collector address, where protocol fees are stored
