@@ -270,8 +270,6 @@ pub struct Farm {
     pub start_epoch: EpochId,
     /// The epoch at which the farm will preliminary end (in case it's not expanded).
     pub preliminary_end_epoch: EpochId,
-    /// The last epoch this farm was claimed.
-    pub last_epoch_claimed: EpochId,
 }
 
 #[cw_serde]
