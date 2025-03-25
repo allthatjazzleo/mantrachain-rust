@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// SignatureDescriptors wraps multiple SignatureDescriptor's.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
@@ -51,7 +51,7 @@ pub struct SignatureDescriptor {
 }
 /// Nested message and enum types in `SignatureDescriptor`.
 pub mod signature_descriptor {
-    use osmosis_std_derive::CosmwasmExt;
+    use neutron_std_derive::CosmwasmExt;
     /// Data represents signature data
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(
@@ -72,7 +72,7 @@ pub mod signature_descriptor {
     }
     /// Nested message and enum types in `Data`.
     pub mod data {
-        use osmosis_std_derive::CosmwasmExt;
+        use neutron_std_derive::CosmwasmExt;
         /// Single is the signature data for a single signer
         #[allow(clippy::derive_partial_eq_without_eq)]
         #[derive(

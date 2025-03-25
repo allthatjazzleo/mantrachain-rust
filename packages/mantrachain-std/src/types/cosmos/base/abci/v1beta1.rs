@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// TxResponse defines a structure containing relevant tx data and metadata. The
 /// tags are stringified and the log is JSON decoded.
 #[allow(clippy::derive_partial_eq_without_eq)]

@@ -1,6 +1,6 @@
 [package]
 authors.workspace    = true
-description          = "Standard library for Mantrachain with CosmWasm support included"
+description          = "Standard library for Mantrachain with CosmWasm support included. This package is a modified copy of the osmosis package - https://github.com/osmosis-labs/osmosis-rust/tree/main/packages/osmosis-std"
 edition.workspace    = true
 homepage.workspace   = true
 license.workspace    = true
@@ -9,13 +9,15 @@ repository.workspace = true
 version              = "0.1.0"
 
 [dependencies]
-chrono.workspace             = true
-cosmwasm-std.workspace       = true
-osmosis-std.workspace        = true
-osmosis-std-derive.workspace = true
-prost.workspace              = true
-prost-types.workspace        = true
-schemars.workspace           = true
+chrono.workspace              = true
+cosmwasm-std.workspace        = true
+osmosis-std.workspace         = true
+neutron-std-derive.workspace  = true
+prost.workspace               = true
+prost-types.workspace         = true
+protobuf.workspace            = true
+schemars.workspace            = true
+serde-json-wasm.workspace     = true
 
 # for query
 serde.workspace          = true

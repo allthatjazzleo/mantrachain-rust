@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// StoreKVPair is a KVStore KVPair used for listening to state changes (Sets and Deletes)
 /// It optionally includes the StoreKey for the originating KVStore and a Boolean flag to distinguish between Sets and
 /// Deletes

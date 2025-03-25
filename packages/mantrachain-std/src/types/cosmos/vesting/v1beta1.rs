@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// BaseVestingAccount implements the VestingAccount interface. It contains all
 /// the necessary fields needed for any vesting account implementation.
 #[allow(clippy::derive_partial_eq_without_eq)]

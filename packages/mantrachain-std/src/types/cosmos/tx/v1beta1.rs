@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Tx is the standard type used for broadcasting transactions.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
@@ -302,7 +302,7 @@ pub struct ModeInfo {
 }
 /// Nested message and enum types in `ModeInfo`.
 pub mod mode_info {
-    use osmosis_std_derive::CosmwasmExt;
+    use neutron_std_derive::CosmwasmExt;
     /// Single is the mode info for a single signer. It is structured as a message
     /// to allow for additional fields such as locale for SIGN_MODE_TEXTUAL in the
     /// future

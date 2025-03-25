@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// ListAllInterfacesRequest is the request type of the ListAllInterfaces RPC.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

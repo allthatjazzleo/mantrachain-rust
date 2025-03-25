@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
     Clone,
@@ -20,7 +20,6 @@ pub struct Request {
 }
 /// Nested message and enum types in `Request`.
 pub mod request {
-    use osmosis_std_derive::CosmwasmExt;
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(
         Clone,
@@ -589,7 +588,6 @@ pub struct Response {
 }
 /// Nested message and enum types in `Response`.
 pub mod response {
-    use osmosis_std_derive::CosmwasmExt;
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(
         Clone,
@@ -905,7 +903,6 @@ pub struct ResponseOfferSnapshot {
 }
 /// Nested message and enum types in `ResponseOfferSnapshot`.
 pub mod response_offer_snapshot {
-    use osmosis_std_derive::CosmwasmExt;
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     #[derive(::serde::Serialize, ::serde::Deserialize, ::schemars::JsonSchema)]
@@ -1004,7 +1001,6 @@ pub struct ResponseApplySnapshotChunk {
 }
 /// Nested message and enum types in `ResponseApplySnapshotChunk`.
 pub mod response_apply_snapshot_chunk {
-    use osmosis_std_derive::CosmwasmExt;
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     #[derive(::serde::Serialize, ::serde::Deserialize, ::schemars::JsonSchema)]
@@ -1089,7 +1085,6 @@ pub struct ResponseProcessProposal {
 }
 /// Nested message and enum types in `ResponseProcessProposal`.
 pub mod response_process_proposal {
-    use osmosis_std_derive::CosmwasmExt;
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     #[derive(::serde::Serialize, ::serde::Deserialize, ::schemars::JsonSchema)]
@@ -1166,7 +1161,6 @@ pub struct ResponseVerifyVoteExtension {
 }
 /// Nested message and enum types in `ResponseVerifyVoteExtension`.
 pub mod response_verify_vote_extension {
-    use osmosis_std_derive::CosmwasmExt;
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     #[derive(::serde::Serialize, ::serde::Deserialize, ::schemars::JsonSchema)]

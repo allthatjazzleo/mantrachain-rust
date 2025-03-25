@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// PubKey is an ed25519 public key for handling Tendermint keys in SDK.
 /// It's needed for Any serialization and SDK compatibility.
 /// It must not be used in a non Tendermint key context because it doesn't implement

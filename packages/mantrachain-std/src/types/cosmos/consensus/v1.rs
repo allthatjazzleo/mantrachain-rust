@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// QueryParamsRequest defines the request type for querying x/consensus parameters.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

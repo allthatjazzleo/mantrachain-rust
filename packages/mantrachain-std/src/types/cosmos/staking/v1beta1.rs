@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// StakeAuthorization defines authorization for delegate/undelegate/redelegate.
 ///
 /// Since: cosmos-sdk 0.43
@@ -32,7 +32,7 @@ pub struct StakeAuthorization {
 }
 /// Nested message and enum types in `StakeAuthorization`.
 pub mod stake_authorization {
-    use osmosis_std_derive::CosmwasmExt;
+    use neutron_std_derive::CosmwasmExt;
     /// Validators defines list of validator addresses.
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(

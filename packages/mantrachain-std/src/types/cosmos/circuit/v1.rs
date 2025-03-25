@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Permissions are the permissions that an account has to trip
 /// or reset the circuit breaker.
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -29,7 +29,6 @@ pub struct Permissions {
 }
 /// Nested message and enum types in `Permissions`.
 pub mod permissions {
-    use osmosis_std_derive::CosmwasmExt;
     /// Level is the permission level.
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]

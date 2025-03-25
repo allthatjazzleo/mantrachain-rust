@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// ConsensusParams contains consensus critical parameters that determine the
 /// validity of blocks.
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -940,7 +940,6 @@ pub struct Evidence {
 }
 /// Nested message and enum types in `Evidence`.
 pub mod evidence {
-    use osmosis_std_derive::CosmwasmExt;
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(
         Clone,

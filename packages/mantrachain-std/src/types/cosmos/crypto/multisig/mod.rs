@@ -1,5 +1,5 @@
 pub mod v1beta1;
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// LegacyAminoPubKey specifies a public key type
 /// which nests multiple public keys and a threshold,
 /// it uses legacy amino address rules.

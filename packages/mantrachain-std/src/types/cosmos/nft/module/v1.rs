@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Module is the config object of the nft module.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

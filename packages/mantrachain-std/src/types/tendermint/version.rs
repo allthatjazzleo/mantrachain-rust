@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// App includes the protocol and software version for the application.
 /// This information is included in ResponseInfo. The App.Protocol can be
 /// updated in ResponseEndBlock.

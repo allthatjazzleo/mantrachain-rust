@@ -4,14 +4,20 @@ use std::path::Path;
 use heck::ToSnakeCase;
 use heck::ToUpperCamelCase;
 use proc_macro2::{Group, TokenStream as TokenStream2, TokenTree};
-use prost_types::{
-    DescriptorProto, EnumDescriptorProto, FileDescriptorSet, ServiceDescriptorProto,
-};
+use quote::ToTokens;
 use quote::{format_ident, quote};
 use regex::Regex;
 use syn::ItemEnum;
 use syn::ItemMod;
 use syn::{parse_quote, Attribute, Fields, Ident, Item, ItemStruct, Type};
+
+const TOO_MANY_ARGUMENTS_FUNCS: &[&str] = &["estimate_place_limit_order"];
+
+pub const LARGE_SIZE_ENUM_REPLACEMENTS: &[(&str, &str, &str)] = &[(
+    "tendermint.blocksync.rs",
+    "super::BlockResponse",
+    "Box<super::BlockResponse>",
+)];
 
 /// Regex substitutions to apply to the prost-generated output
 pub const REPLACEMENTS: &[(&str, &str)] = &[
@@ -30,6 +36,10 @@ pub const REPLACEMENTS: &[(&str, &str)] = &[
              impl ${1}Client<tonic::transport::Channel>",
     ),
 ];
+
+// 65001 is a number of nullable field
+// https://github.com/cosmos/gogoproto/blob/28b2facaa30178e137477bcc756a72a7a3c84b6b/gogoproto/gogo.proto#L130
+const GOGOPROTO_NULLABLE_EXTENSION_FIELD_NUMBER: u32 = 65001;
 
 pub fn add_derive_eq(mut attr: Attribute) -> Attribute {
     // find derive attribute
@@ -104,7 +114,7 @@ pub fn add_derive_eq_enum(s: &ItemEnum) -> ItemEnum {
 pub fn append_attrs_struct(
     src: &Path,
     s: &ItemStruct,
-    descriptor: &FileDescriptorSet,
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
 ) -> ItemStruct {
     let mut s = s.clone();
     let query_services = extract_query_services(descriptor);
@@ -129,7 +139,11 @@ pub fn append_attrs_struct(
     s
 }
 
-pub fn append_attrs_enum(src: &Path, e: &ItemEnum, descriptor: &FileDescriptorSet) -> ItemEnum {
+pub fn append_attrs_enum(
+    src: &Path,
+    e: &ItemEnum,
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
+) -> ItemEnum {
     let mut e = e.clone();
     let deprecated = get_deprecation(src, &e.ident, descriptor);
 
@@ -171,6 +185,50 @@ pub fn allow_serde_int_as_str(s: ItemStruct) -> ItemStruct {
                     #[serde(
                         serialize_with = "crate::serde::as_str::serialize",
                         deserialize_with = "crate::serde::as_str::deserialize"
+                    )]
+                };
+                field.attrs.append(&mut vec![from_str]);
+                field
+            } else {
+                field
+            }
+        })
+        .collect::<Vec<syn::Field>>();
+
+    let fields_named: syn::FieldsNamed = parse_quote! {
+        { #(#fields_vec,)* }
+    };
+    let fields = syn::Fields::Named(fields_named);
+
+    syn::ItemStruct { fields, ..s }
+}
+
+pub fn allow_serde_option_int_as_str(s: ItemStruct) -> ItemStruct {
+    let fields_vec = s
+        .fields
+        .clone()
+        .into_iter()
+        .map(|mut field| {
+            let int_types = vec![
+                parse_quote!(::core::option::Option<i8>),
+                parse_quote!(::core::option::Option<i16>),
+                parse_quote!(::core::option::Option<i32>),
+                parse_quote!(::core::option::Option<i64>),
+                parse_quote!(::core::option::Option<i128>),
+                parse_quote!(::core::option::Option<isize>),
+                parse_quote!(::core::option::Option<u8>),
+                parse_quote!(::core::option::Option<u16>),
+                parse_quote!(::core::option::Option<u32>),
+                parse_quote!(::core::option::Option<u64>),
+                parse_quote!(::core::option::Option<u128>),
+                parse_quote!(::core::option::Option<usize>),
+            ];
+
+            if int_types.contains(&field.ty) {
+                let from_str: syn::Attribute = parse_quote! {
+                    #[serde(
+                        serialize_with = "crate::serde::option_as_str::serialize",
+                        deserialize_with = "crate::serde::option_as_str::deserialize"
                     )]
                 };
                 field.attrs.append(&mut vec![from_str]);
@@ -304,6 +362,96 @@ pub fn serde_alias_id_with_uppercased(s: ItemStruct) -> ItemStruct {
     syn::ItemStruct { fields, ..s }
 }
 
+fn is_field_gogoproto_nullable(
+    message_name: &str,
+    field_name: &str,
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
+) -> bool {
+    for file in descriptor.file.iter() {
+        for message in file.clone().message_type {
+            // not a message we are searching for
+            if message.name() != message_name {
+                continue;
+            }
+
+            for field in message.clone().field {
+                // not a field we are searching for
+                if field.name() != field_name {
+                    continue;
+                }
+
+                // rust-protobuf can't parse option extensions properly (or i did not find a way for that),
+                // so all options extensions are located in special_fields->unknown_fields after a parsing
+                let sf = field
+                    .options
+                    .special_fields
+                    .unknown_fields()
+                    .get(GOGOPROTO_NULLABLE_EXTENSION_FIELD_NUMBER);
+
+                let is_gogoproto_nullable = if let Some(v) = sf {
+                    match v {
+                        // Varint(1) => gogoproto.nullable = true
+                        // Varint(0) => gogoproto.nullable = false
+                        // any other enum values (Fixed32, Fixed64, ...) => this means under GOGOPROTO_NULLABLE_EXTENSION_FIELD_NUMBER
+                        // field is contained some other stuff, that is not gogoproto at all (which is highly unlikely)
+                        // let's mark it as unimplemented for now.
+                        // if we really encounter this, we'll come up with some solution
+                        protobuf::UnknownValueRef::Varint(u) => u == 1,
+                        _ => panic!("Unexpected values of special field: {:?}", v),
+                    }
+                } else {
+                    false
+                };
+
+                return is_gogoproto_nullable;
+            }
+        }
+    }
+
+    false
+}
+
+pub fn respect_gogoproto_nullable(
+    mut s: ItemStruct,
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
+) -> ItemStruct {
+    // iterating over the fields in a message
+    if let Fields::Named(ref mut fields_named) = s.fields {
+        for field in fields_named.named.iter_mut() {
+            if let Some(ident) = &field.ident {
+                // if a field has an option `gogoproto.nullable = true`
+                if is_field_gogoproto_nullable(&s.ident.to_string(), &ident.to_string(), descriptor)
+                {
+                    // check if it's already marked as optional by prost
+                    // this may happen if:
+                    // * field has a nested structure type (not scalar, e.g. string, int, bool, etc.)
+                    // * field is vector
+                    let already_optional = field.attrs.iter().any(|attr| {
+                        attr.path.is_ident("prost")
+                            && (attr.to_token_stream().to_string().contains("optional")
+                                || attr.to_token_stream().to_string().contains("repeated"))
+                    });
+
+                    if !already_optional {
+                        // get a string representation of a field's type
+                        let ts = field.ty.to_token_stream();
+                        // wrap it into option
+                        field.ty = parse_quote!(::core::option::Option<#ts>);
+
+                        // and add a prost #[prost(optional)] macros to notify prost about field's optionality
+                        let optional_attr = parse_quote! {
+                            #[prost(optional)]
+                        };
+                        field.attrs.push(optional_attr);
+                    }
+                }
+            }
+        }
+    }
+
+    s
+}
+
 pub fn make_next_key_optional(mut s: ItemStruct) -> ItemStruct {
     if s.ident == "PageResponse" {
         if let Fields::Named(ref mut fields_named) = s.fields {
@@ -337,20 +485,16 @@ pub fn allow_serde_option_vec_u8_as_base64_encoded_string(s: syn::ItemStruct) ->
                 if let Some(segment) = type_path.path.segments.last() {
                     if segment.ident == "Option" {
                         if let syn::PathArguments::AngleBracketed(args) = &segment.arguments {
-                            if let Some(arg) = args.args.first() {
-                                if let syn::GenericArgument::Type(inner_ty) = arg {
-                                    if let syn::Type::Path(inner_path) = inner_ty {
-                                        if let Some(inner_segment) = inner_path.path.segments.last() {
-                                            if inner_segment.ident == "Vec" {
-                                                let from_str: syn::Attribute = parse_quote! {
-                                                    #[serde(
-                                                        serialize_with = "crate::serde::as_option_base64_encoded_string::serialize",
-                                                        deserialize_with = "crate::serde::as_option_base64_encoded_string::deserialize"
-                                                    )]
-                                                };
-                                                field.attrs.push(from_str);
-                                            }
-                                        }
+                            if let Some(syn::GenericArgument::Type(syn::Type::Path(inner_path))) = args.args.first() {
+                                if let Some(inner_segment) = inner_path.path.segments.last() {
+                                    if inner_segment.ident == "Vec" {
+                                        let from_str: syn::Attribute = parse_quote! {
+                                            #[serde(
+                                                serialize_with = "crate::serde::as_option_base64_encoded_string::serialize",
+                                                deserialize_with = "crate::serde::as_option_base64_encoded_string::deserialize"
+                                            )]
+                                        };
+                                        field.attrs.push(from_str);
                                     }
                                 }
                             }
@@ -375,7 +519,7 @@ pub fn allow_serde_option_vec_u8_as_base64_encoded_string(s: syn::ItemStruct) ->
 fn get_query_attr(
     src: &Path,
     ident: &Ident,
-    query_services: &HashMap<String, ServiceDescriptorProto>,
+    query_services: &HashMap<String, protobuf::descriptor::ServiceDescriptorProto>,
 ) -> Option<Attribute> {
     let package = src.file_stem().unwrap().to_str().unwrap();
     let service = query_services.get(package);
@@ -395,7 +539,11 @@ fn get_query_attr(
     Some(syn::parse_quote! { #[proto_query(path = #path, response_type = #response_type)] })
 }
 
-fn get_type_url(src: &Path, ident: &Ident, descriptor: &FileDescriptorSet) -> String {
+fn get_type_url(
+    src: &Path,
+    ident: &Ident,
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
+) -> String {
     let type_path = src.file_stem().unwrap().to_str().unwrap();
     let init_path = "";
 
@@ -418,7 +566,11 @@ fn get_type_url(src: &Path, ident: &Ident, descriptor: &FileDescriptorSet) -> St
     format!("/{}.{}", type_path, name.unwrap())
 }
 
-fn get_deprecation(src: &Path, ident: &Ident, descriptor: &FileDescriptorSet) -> bool {
+fn get_deprecation(
+    src: &Path,
+    ident: &Ident,
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
+) -> bool {
     let type_path = src.file_stem().unwrap().to_str().unwrap();
 
     let deprecation: Option<bool> = descriptor
@@ -441,13 +593,13 @@ fn get_deprecation(src: &Path, ident: &Ident, descriptor: &FileDescriptorSet) ->
 
 fn extract_deprecation_from_descriptor(
     target: &str,
-    message_type: &[DescriptorProto],
+    message_type: &[protobuf::descriptor::DescriptorProto],
 ) -> Option<bool> {
     message_type.iter().find_map(|descriptor| {
         let message_name = descriptor.name.to_owned().unwrap();
 
         if message_name.to_upper_camel_case() == target {
-            descriptor.clone().options?.deprecated
+            descriptor.clone().options.deprecated
         } else if let Some(deprecated) =
             extract_deprecation_from_descriptor(target, &descriptor.nested_type)
         {
@@ -458,16 +610,19 @@ fn extract_deprecation_from_descriptor(
     })
 }
 
-fn extract_deprecation_from_enum(target: &str, enum_type: &[EnumDescriptorProto]) -> Option<bool> {
+fn extract_deprecation_from_enum(
+    target: &str,
+    enum_type: &[protobuf::descriptor::EnumDescriptorProto],
+) -> Option<bool> {
     enum_type
         .iter()
         .find(|e| e.name.to_owned().unwrap().to_upper_camel_case() == target)
-        .and_then(|e| e.clone().options?.deprecated)
+        .and_then(|e| e.clone().options.deprecated)
 }
 
 fn extract_type_path_from_descriptor(
     target: &str,
-    message_type: &[DescriptorProto],
+    message_type: &[protobuf::descriptor::DescriptorProto],
     path: &str,
 ) -> Option<String> {
     message_type.iter().find_map(|descriptor| {
@@ -491,9 +646,15 @@ fn extract_type_path_from_descriptor(
     })
 }
 
+pub fn extract_type_path_from_service_str(s: &str) -> String {
+    let mut parts: Vec<_> = s.trim_start_matches('.').split('.').collect();
+    parts.pop();
+    parts.join(".")
+}
+
 fn extract_type_path_from_enum(
     target: &str,
-    enum_type: &[EnumDescriptorProto],
+    enum_type: &[protobuf::descriptor::EnumDescriptorProto],
     path: &str,
 ) -> Option<String> {
     enum_type
@@ -503,8 +664,8 @@ fn extract_type_path_from_enum(
 }
 
 pub fn extract_query_services(
-    descriptor: &FileDescriptorSet,
-) -> HashMap<String, ServiceDescriptorProto> {
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
+) -> HashMap<String, protobuf::descriptor::ServiceDescriptorProto> {
     descriptor
         .clone()
         .file
@@ -539,7 +700,7 @@ pub fn append_querier(
     items: Vec<Item>,
     src: &Path,
     nested_mod: bool,
-    descriptor: &FileDescriptorSet,
+    descriptor: &protobuf::descriptor::FileDescriptorSet,
 ) -> Vec<Item> {
     let package = src.file_stem().unwrap().to_str().unwrap();
     let re = Regex::new(r"([^.]*)(\.v\d+(beta\d+)?)?$").unwrap();
@@ -554,8 +715,8 @@ pub fn append_querier(
             return quote! {};
         }
 
-        let deprecated = method_desc.clone().options.map(|opt| opt.deprecated.unwrap_or(false) ).unwrap_or(false);
-        let deprecated_macro = if deprecated {
+        let deprecated = method_desc.clone().options.map(|opt| opt.deprecated.unwrap_or(false)).unwrap_or(false);
+        let deprecated_attr = if deprecated {
             quote!(#[deprecated])
         } else {
             quote!()
@@ -563,9 +724,22 @@ pub fn append_querier(
 
         let method_desc = method_desc.clone();
 
+        // Some requests are defined in other packages and imported, but end up in the
+        // ServiceDescriptorProto anyway, so we need to filter them out
+        let req_package = extract_type_path_from_service_str(method_desc.input_type.as_ref().unwrap());
+        if req_package != package {
+            return quote! {};
+        }
+
         let name = format_ident!("{}", method_desc.name.unwrap().as_str().to_snake_case());
         let req_type = format_ident!("{}", method_desc.input_type.unwrap().split('.').last().unwrap().to_string().to_upper_camel_case());
         let res_type = format_ident!("{}", method_desc.output_type.unwrap().split('.').last().unwrap().to_string().to_upper_camel_case());
+
+        let allow_too_many_arguments_attr = if TOO_MANY_ARGUMENTS_FUNCS.iter().any(|&i| name == i) {
+            quote!(#[allow(clippy::too_many_arguments)])
+        } else {
+            quote!()
+        };
 
         let req_args = items.clone().into_iter()
             .find_map(|item| match item {
@@ -588,28 +762,36 @@ pub fn append_querier(
         let arg_ty = req_args.unwrap().into_iter().map(|arg| arg.ty).collect::<Vec<Type>>();
 
         quote! {
-          #deprecated_macro
-          pub fn #name( &self, #(#arg_idents : #arg_ty),* ) -> Result<#res_type, cosmwasm_std::StdError> {
-            #req_type { #(#arg_idents),* }.query(self.querier)
-          }
+            #deprecated_attr
+            #allow_too_many_arguments_attr
+            pub fn #name( &self, #(#arg_idents : #arg_ty),* ) -> Result<#res_type, cosmwasm_std::StdError> {
+                #req_type { #(#arg_idents),* }.query(self.querier)
+            }
         }
     }).collect::<Vec<TokenStream2>>());
 
     let querier = if let Some(query_fns) = query_fns {
         if !nested_mod {
+            let allow_dead_code_attr = if query_fns.iter().any(|i| !i.is_empty()) {
+                quote!()
+            } else {
+                quote!(#[allow(dead_code)])
+            };
+
             vec![
                 parse_quote! {
-                  pub struct #querier_wrapper_ident<'a, Q: cosmwasm_std::CustomQuery> {
-                      querier: &'a cosmwasm_std::QuerierWrapper<'a, Q>,
-                  }
+                    #allow_dead_code_attr
+                    pub struct #querier_wrapper_ident<'a, Q: cosmwasm_std::CustomQuery> {
+                        querier: &'a cosmwasm_std::QuerierWrapper<'a, Q>,
+                    }
                 },
                 parse_quote! {
-                  impl<'a, Q: cosmwasm_std::CustomQuery> #querier_wrapper_ident<'a, Q> {
-                      pub fn new(querier: &'a cosmwasm_std::QuerierWrapper<'a, Q>) -> Self {
-                    Self { querier }
+                    impl<'a, Q: cosmwasm_std::CustomQuery> #querier_wrapper_ident<'a, Q> {
+                        pub fn new(querier: &'a cosmwasm_std::QuerierWrapper<'a, Q>) -> Self {
+                            Self { querier }
+                        }
+                        #(#query_fns)*
                     }
-                    #(#query_fns)*
-                  }
                 },
             ]
         } else {
@@ -619,7 +801,7 @@ pub fn append_querier(
         vec![]
     };
 
-    vec![items, querier].concat()
+    [items, querier].concat()
 }
 
 /// This is a hack to fix a clashing name in the stake_authorization module

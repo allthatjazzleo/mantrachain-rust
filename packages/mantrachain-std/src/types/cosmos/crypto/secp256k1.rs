@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// PubKey defines a secp256k1 public key
 /// Key is the compressed form of the pubkey. The first byte depends is a 0x02 byte
 /// if the y-coordinate is the lexicographically largest of the two associated with

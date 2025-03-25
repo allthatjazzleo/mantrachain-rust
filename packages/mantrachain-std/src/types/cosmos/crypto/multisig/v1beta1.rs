@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// MultiSignature wraps the signatures from a multisig.LegacyAminoPubKey.
 /// See cosmos.tx.v1betata1.ModeInfo.Multi for how to specify which signers
 /// signed and with which modes.

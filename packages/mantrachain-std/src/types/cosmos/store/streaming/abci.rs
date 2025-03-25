@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// ListenEndBlockRequest is the request type for the ListenEndBlock RPC method
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

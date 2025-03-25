@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Block is tendermint type Block, with the Header proposer address
 /// field converted to bech32 string.
 #[allow(clippy::derive_partial_eq_without_eq)]

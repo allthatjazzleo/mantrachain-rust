@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// QuotePrice is the representation of the aggregated prices for a CurrencyPair,
 /// where price represents the price of Base in terms of Quote
 #[allow(clippy::derive_partial_eq_without_eq)]

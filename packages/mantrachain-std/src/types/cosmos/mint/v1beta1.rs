@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Minter represents the minting state.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

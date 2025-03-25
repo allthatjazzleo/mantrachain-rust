@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// ValidatorSigningInfo defines a validator's signing info for monitoring their
 /// liveness activity.
 #[allow(clippy::derive_partial_eq_without_eq)]

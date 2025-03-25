@@ -1,15 +1,15 @@
-use log::{info, warn};
+use log::info;
 use std::ffi::OsStr;
 use std::path::PathBuf;
-use std::process;
+use std::process::{Command, Stdio};
 use std::fs;
 use std::path::Path;
 use regex::Regex;
 
 fn run_git(args: impl IntoIterator<Item = impl AsRef<OsStr>>) -> Result<(), String> {
-    let stdout = process::Stdio::inherit();
+    let stdout = Stdio::inherit();
 
-    let exit_status = process::Command::new("git")
+    let exit_status = Command::new("git")
         .args(args)
         .stdout(stdout)
         .status()
@@ -25,40 +25,69 @@ fn run_git(args: impl IntoIterator<Item = impl AsRef<OsStr>>) -> Result<(), Stri
     Ok(())
 }
 
-pub fn update_submodule(dir: &str, rev: &str) {
-    let full_path = |p: &str| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(p);
+pub fn clone_repo(repo: &str, dir: &str, rev: &str) {
+    let full_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(dir);
 
-    info!("Updating {} submodule...", dir);
+    info!("Cloning {} repo...", dir.split('/').nth(2).unwrap());
 
-    // switch to the given revision
-    run_git(["-C", full_path(dir).to_str().unwrap(), "checkout", rev]).expect("failed to checkout");
-
-    // pull the latest changes
-    match run_git(["-C", full_path(dir).to_str().unwrap(), "pull"]) {
-        Ok(_) => info!("Updated {} submodule to revision {}", dir, rev),
-        Err(_) => warn!(
-            "Failed to update {} with revision {}. This might be caused by revision is a tag",
-            dir, rev
-        ),
-    };
-
-    // run_git(["submodule", "update", "--init"]).expect("failed to update submodules");
+    run_git(["clone", repo, full_path.to_str().unwrap()]).expect("failed to clone");
+    run_git(["-C", full_path.to_str().unwrap(), "checkout", rev]).expect("failed to checkout");
 }
 
-pub fn get_cosmos_sdk_version_from_go_mod(project_dir: &str) -> Result<String, String> {
+#[derive(Debug, PartialEq)]
+pub enum Module {
+    CosmosSdk,
+    Connect,
+}
+
+pub fn get_version_from_go_mod(project_dir: &str, module: Module) -> Result<String, String> {
     let go_mod_path = Path::new(project_dir).join("go.mod");
     let content = fs::read_to_string(go_mod_path)
         .expect("Failed to read go.mod file");
 
-    // Regular expression to match the cosmos-sdk version in replace directive
-    let re = Regex::new(r#"github.com/cosmos/cosmos-sdk\s+=>\s+github.com/MANTRA-Chain/cosmos-sdk\s+([^\s]+)"#)
-        .map_err(|_| "Failed to create regex for cosmos-sdk version".to_string())?;
+    match module {
+        Module::CosmosSdk => extract_module_version(
+            &content,
+            "cosmos/cosmos-sdk",
+            "MANTRA-Chain/cosmos-sdk"
+        ),
+        Module::Connect => extract_module_version(
+            &content,
+            "skip-mev/connect/v2",
+            "MANTRA-Chain/connect/v2"
+        ),
+    }
+}
+
+fn extract_module_version(content: &str, original_module: &str, replacement_module: &str) -> Result<String, String> {
+    let pattern = format!(
+        r#"github.com/{}\s+=>\s+github.com/{}\s+([^\s]+)"#,
+        original_module, replacement_module
+    );
     
-    if let Some(captures) = re.captures(&content) {
-        captures.get(1)
+    let re = Regex::new(&pattern)
+        .map_err(|_| "Failed to create regex pattern".to_string())?;
+    
+    if let Some(captures) = re.captures(content) {
+        let version = captures.get(1)
             .map(|m| m.as_str().to_string())
-            .ok_or("Failed to extract cosmos-sdk version from go.mod".to_string())
+            .ok_or("Failed to extract version".to_string())?;
+
+        // Check if version follows the pattern: {timestamp}-{commit_hash}
+        if let [commit_hash, timestamp, ..] = version.split('-').rev().collect::<Vec<&str>>()[..] {
+            let is_valid_timestamp = timestamp.len() >= 14 
+                && timestamp[timestamp.len()-14..].chars().all(|c| c.is_digit(10));
+            let is_valid_commit = commit_hash.len() == 12 
+                && commit_hash.chars().all(|c| c.is_alphanumeric());
+
+            if is_valid_timestamp && is_valid_commit {
+                return Ok(commit_hash.to_string());
+            }
+        }
+        
+        // Return the version as is (for tag-style versions)
+        Ok(version)
     } else {
-        Err("Failed to extract cosmos-sdk version from go.mod".to_string())
+        Err(format!("Failed to find {} version in go.mod", original_module))
     }
 }

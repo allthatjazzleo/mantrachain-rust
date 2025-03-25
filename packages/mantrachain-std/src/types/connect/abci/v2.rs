@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// OracleVoteExtension defines the vote extension structure for oracle prices.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

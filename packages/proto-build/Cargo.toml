@@ -21,3 +21,5 @@ syn = { workspace = true, features = ["full", "parsing", "extra-traits"] }
 tonic.workspace = true
 tonic-build.workspace = true
 walkdir.workspace = true
+serde-protobuf.workspace = true
+protobuf.workspace = true

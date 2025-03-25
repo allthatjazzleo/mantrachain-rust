@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
     Clone,
@@ -144,7 +144,6 @@ pub struct PublicKey {
 }
 /// Nested message and enum types in `PublicKey`.
 pub mod public_key {
-    use osmosis_std_derive::CosmwasmExt;
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(
         Clone,

@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// PubKey defines a secp256r1 ECDSA public key.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

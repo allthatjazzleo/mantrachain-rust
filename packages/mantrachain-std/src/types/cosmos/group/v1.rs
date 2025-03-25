@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Member represents a group member with an account address,
 /// non-zero weight, metadata and added_at timestamp.
 #[allow(clippy::derive_partial_eq_without_eq)]
@@ -797,6 +797,32 @@ pub struct EventProposalPruned {
     /// tally_result is the proposal tally result (when applicable).
     #[prost(message, optional, tag = "3")]
     pub tally_result: ::core::option::Option<TallyResult>,
+}
+/// EventTallyError is an event emitted when a proposal tally failed with an error.
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(
+    Clone,
+    PartialEq,
+    Eq,
+    ::prost::Message,
+    ::serde::Serialize,
+    ::serde::Deserialize,
+    ::schemars::JsonSchema,
+    CosmwasmExt,
+)]
+#[proto_message(type_url = "/cosmos.group.v1.EventTallyError")]
+pub struct EventTallyError {
+    /// proposal_id is the unique ID of the proposal.
+    #[prost(uint64, tag = "1")]
+    #[serde(alias = "proposalID")]
+    #[serde(
+        serialize_with = "crate::serde::as_str::serialize",
+        deserialize_with = "crate::serde::as_str::deserialize"
+    )]
+    pub proposal_id: u64,
+    /// error_message is the raw error output
+    #[prost(string, tag = "2")]
+    pub error_message: ::prost::alloc::string::String,
 }
 /// GenesisState defines the group module's genesis state.
 #[allow(clippy::derive_partial_eq_without_eq)]

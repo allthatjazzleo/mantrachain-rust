@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// GetRequest is the Query/Get request type.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
@@ -86,7 +86,7 @@ pub struct ListRequest {
 }
 /// Nested message and enum types in `ListRequest`.
 pub mod list_request {
-    use osmosis_std_derive::CosmwasmExt;
+    use neutron_std_derive::CosmwasmExt;
     /// Prefix specifies the arguments to a prefix query.
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(
@@ -195,7 +195,6 @@ pub struct IndexValue {
 }
 /// Nested message and enum types in `IndexValue`.
 pub mod index_value {
-    use osmosis_std_derive::CosmwasmExt;
     /// value specifies the index value
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(

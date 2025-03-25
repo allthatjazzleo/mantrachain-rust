@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// ModuleSchemaDescriptor describe's a module's ORM schema.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
@@ -26,7 +26,7 @@ pub struct ModuleSchemaDescriptor {
 }
 /// Nested message and enum types in `ModuleSchemaDescriptor`.
 pub mod module_schema_descriptor {
-    use osmosis_std_derive::CosmwasmExt;
+    use neutron_std_derive::CosmwasmExt;
     /// FileEntry describes an ORM file used in a module.
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(

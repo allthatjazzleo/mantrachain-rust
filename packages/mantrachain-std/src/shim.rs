@@ -1,13 +1,11 @@
-use ::serde::{ser, Deserialize, Deserializer, Serialize, Serializer};
-use chrono::{DateTime, NaiveDateTime, Utc};
+use ::serde::{Deserialize, Deserializer, Serialize, Serializer};
+use chrono::{DateTime, Utc};
 use cosmwasm_std::StdResult;
 use serde::de;
 use serde::de::Visitor;
 
 use std::fmt;
 use std::str::FromStr;
-
-use prost::Message;
 
 #[derive(Clone, PartialEq, Eq, ::prost::Message, schemars::JsonSchema)]
 pub struct Timestamp {
@@ -34,9 +32,8 @@ impl Serialize for Timestamp {
             nanos: self.nanos,
         };
         ts.normalize();
-        let dt = NaiveDateTime::from_timestamp_opt(ts.seconds, ts.nanos as u32)
+        let dt = DateTime::from_timestamp(ts.seconds, ts.nanos as u32)
             .expect("invalid or out-of-range datetime");
-        let dt: DateTime<Utc> = DateTime::from_naive_utc_and_offset(dt, Utc);
         serializer.serialize_str(format!("{:?}", dt).as_str())
     }
 }
@@ -182,7 +179,7 @@ macro_rules! expand_as_any {
         impl Serialize for Any {
             fn serialize<S>(
                 &self,
-                serializer: S,
+                _serializer: S,
             ) -> Result<<S as ::serde::Serializer>::Ok, <S as ::serde::Serializer>::Error>
             where
                 S: ::serde::Serializer,
@@ -230,7 +227,7 @@ macro_rules! expand_as_any {
 
                 match type_url {
                     // @type found
-                    Some(t) => {
+                    Some(_) => {
                         $(
                             if t == <$ty>::TYPE_URL {
                                 return <$ty>::deserialize(
@@ -285,17 +282,7 @@ macro_rules! expand_as_any {
 // must order by type that has more information for Any deserialization to
 // work correctly. Since after serialization, it currently loses @type tag.
 // And deserialization works by trying to iteratively match the structure.
-expand_as_any!(
-    // accounts have distincted structure
-    crate::types::cosmos::auth::v1beta1::BaseAccount,
-    crate::types::cosmos::auth::v1beta1::ModuleAccount,
-    // pubkey required for base account
-    // it can't be distinced by structure
-    // so deserialing it back might not work properly
-    crate::types::cosmos::crypto::secp256k1::PubKey,
-    crate::types::cosmos::crypto::secp256r1::PubKey,
-    crate::types::cosmos::crypto::ed25519::PubKey,
-);
+expand_as_any!();
 
 macro_rules! impl_prost_types_exact_conversion {
     ($t:ident | $($arg:ident),*) => {
@@ -347,14 +334,14 @@ impl TryFrom<crate::types::cosmos::base::v1beta1::Coin> for cosmwasm_std::Coin {
     }
 }
 
-/// Convert a list of `Coin` from osmosis proto generated proto `Coin` type to cosmwasm `Coin` type
+/// Convert a list of `Coin` from generated proto `Coin` type to cosmwasm `Coin` type
 pub fn try_proto_to_cosmwasm_coins(
     coins: impl IntoIterator<Item = crate::types::cosmos::base::v1beta1::Coin>,
 ) -> StdResult<Vec<cosmwasm_std::Coin>> {
     coins.into_iter().map(|c| c.try_into()).collect()
 }
 
-/// Convert a list of `Coin` from cosmwasm `Coin` type to  osmosis proto generated proto `Coin` type
+/// Convert a list of `Coin` from cosmwasm `Coin` type to generated proto `Coin` type
 pub fn cosmwasm_to_proto_coins(
     coins: impl IntoIterator<Item = cosmwasm_std::Coin>,
 ) -> Vec<crate::types::cosmos::base::v1beta1::Coin> {

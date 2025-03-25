@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Market encapsulates a Ticker and its provider-specific configuration.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

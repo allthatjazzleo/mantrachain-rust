@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Record is used for representing a key in the keyring.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
@@ -25,7 +25,7 @@ pub struct Record {
 }
 /// Nested message and enum types in `Record`.
 pub mod record {
-    use osmosis_std_derive::CosmwasmExt;
+    use neutron_std_derive::CosmwasmExt;
     /// Item is a keyring item stored in a keyring backend.
     /// Local item
     #[allow(clippy::derive_partial_eq_without_eq)]

@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// GenesisState defines the raw genesis transaction in JSON.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(

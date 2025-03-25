@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Equivocation implements the Evidence interface and defines evidence of double
 /// signing misbehavior.
 #[allow(clippy::derive_partial_eq_without_eq)]

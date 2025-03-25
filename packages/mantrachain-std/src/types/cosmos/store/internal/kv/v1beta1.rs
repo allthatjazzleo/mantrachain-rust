@@ -1,4 +1,4 @@
-use osmosis_std_derive::CosmwasmExt;
+use neutron_std_derive::CosmwasmExt;
 /// Pairs defines a repeated slice of Pair objects.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(
