@@ -4,7 +4,11 @@
 
 - Added:
   - PoolStatus to PoolInfo struct.
-  
+  - `pool_indentifier` param to FeatureToggle struct, so features can be enabled/disabled per pool.
+
+- Removed:
+  - FeatureToggle from Config struct.
+
 ## v2.1.5
 
 - Added:
