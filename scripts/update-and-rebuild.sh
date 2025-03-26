@@ -5,7 +5,7 @@ set -euxo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 MANTRACHAIN_REV=${1:-main}
 
-LATEST_MANTRACHAIN_VERSION="v3.0.0"
+LATEST_MANTRACHAIN_VERSION="v4.0.0"
 
 # if "$MANTRACHAIN_REV" is /v\d+/ then extract it as var
 if [[ "$MANTRACHAIN_REV" =~ ^v[0-9]+ ]]; then
@@ -27,33 +27,4 @@ sed -i -- "s@const MANTRACHAIN_REV: \&str = \".*\";@const MANTRACHAIN_REV: \&str
 git diff
 
 # rebuild mantrachain-std
-cd "$SCRIPT_DIR/../packages/proto-build/" && cargo run -- --update-deps
-
-########################################
-## Update git revision if there is    ##
-## any change                         ##
-########################################
-
-# if [[ -n "${SKIP_GIT_UPDATE:-}" ]]; then
-#   echo '[SKIP] SKIP_GIT_UPDATE is set, skipping git update'
-#   exit 0
-# fi
-
-# # if dirty or untracked file exists
-# if [[ $(git diff --stat) != '' ||  $(git ls-files  --exclude-standard  --others) ]]; then
-#   # add, commit and push
-#   git add "$SCRIPT_DIR/.."
-#   git commit -m "rebuild with $(git rev-parse --short HEAD:dependencies/mantrachain)"
-
-#   # remove "origin/"
-#   MANTRACHAIN_VERSION=$(echo "$MANTRACHAIN_VERSION" | sed "s/^origin\///")
-#   BRANCH="autobuild-$MANTRACHAIN_VERSION"
-
-#   # force delete local "$BRANCH" if exists
-#   git branch -D "$BRANCH" || true
-
-#   git checkout -b "$BRANCH"
-#   git push -uf origin "$BRANCH"
-# else
-#   echo '[CLEAN] No update needed for this build'
-# fi
+cd "$SCRIPT_DIR/../packages/proto-build/" && cargo run
