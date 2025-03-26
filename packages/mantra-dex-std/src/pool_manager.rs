@@ -78,6 +78,8 @@ pub struct PoolInfo {
     pub pool_type: PoolType,
     /// The fees for the pool.
     pub pool_fees: PoolFee,
+    /// The status of the pool
+    pub status: PoolStatus,
 }
 
 /// Possible pool types, it can be either a constant product (xyk) pool or a stable swap pool.
@@ -102,6 +104,27 @@ impl PoolType {
     }
 }
 
+/// The pool status tells what actions are enabled for this pool.
+#[cw_serde]
+pub struct PoolStatus {
+    /// Whether swaps are enabled
+    pub swaps_enabled: bool,
+    /// Whether deposits are enabled
+    pub deposits_enabled: bool,
+    /// Whether withdrawals are enabled
+    pub withdrawals_enabled: bool,
+}
+
+impl Default for PoolStatus {
+    fn default() -> Self {
+        PoolStatus {
+            swaps_enabled: true,
+            deposits_enabled: true,
+            withdrawals_enabled: true,
+        }
+    }
+}
+
 /// The contract configuration.
 #[cw_serde]
 pub struct Config {
@@ -111,8 +134,6 @@ pub struct Config {
     pub farm_manager_addr: Addr,
     /// How much it costs to create a pool. It helps prevent spamming of new pools.
     pub pool_creation_fee: Coin,
-    //  Whether or not swaps, deposits, and withdrawals are enabled
-    pub feature_toggle: FeatureToggle,
 }
 
 #[cw_serde]
@@ -208,8 +229,8 @@ pub enum ExecuteMsg {
         farm_manager_addr: Option<String>,
         /// The new fee that must be paid when a pool is created.
         pool_creation_fee: Option<Coin>,
-        /// The new feature toggles of the contract, allowing fine-tuned
-        /// control over which operations are allowed.
+        /// Toggles features for a given pool, allowing fine-tuned
+        /// control over which operations are allowed, i.e. swap, deposits, withdrawals
         feature_toggle: Option<FeatureToggle>,
     },
 }
@@ -351,12 +372,14 @@ pub struct ReverseSimulationResponse {
 /// Pool feature toggle, can control whether swaps, deposits, and withdrawals are enabled.
 #[cw_serde]
 pub struct FeatureToggle {
+    /// The identifier of the pool to toggle the status of.
+    pub pool_identifier: String,
     /// Whether or not swaps are enabled
-    pub withdrawals_enabled: bool,
+    pub withdrawals_enabled: Option<bool>,
     /// Whether or not deposits are enabled
-    pub deposits_enabled: bool,
+    pub deposits_enabled: Option<bool>,
     /// Whether or not swaps are enabled
-    pub swaps_enabled: bool,
+    pub swaps_enabled: Option<bool>,
 }
 
 /// The response for the `SimulateSwapOperations` query.
