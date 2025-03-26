@@ -78,6 +78,8 @@ pub struct PoolInfo {
     pub pool_type: PoolType,
     /// The fees for the pool.
     pub pool_fees: PoolFee,
+    /// The status of the pool
+    pub status: PoolStatus,
 }
 
 /// Possible pool types, it can be either a constant product (xyk) pool or a stable swap pool.
@@ -100,6 +102,17 @@ impl PoolType {
             PoolType::StableSwap { .. } => "StableSwap",
         }
     }
+}
+
+/// The pool status tells what actions are enabled for this pool.
+#[cw_serde]
+pub struct PoolStatus {
+    /// Whether swaps are enabled
+    pub swaps_enabled: bool,
+    /// Whether deposits are enabled
+    pub deposits_enabled: bool,
+    /// Whether withdrawals are enabled
+    pub withdrawals_enabled: bool,
 }
 
 /// The contract configuration.
